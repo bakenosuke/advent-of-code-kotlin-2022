@@ -12,60 +12,28 @@ fun main() {
 class Day04 {
 
     fun part1(input: List<String>): Int {
-        val scores = input.map { cardScore(it) }
-        return scores.sumOf { it }
-    }
+        val fullyContains = input.filter {
+            val leftRange = it.substringBefore(",").split("-").map { it.toInt()}
+            val rightRange = it.substringAfter(",").split("-").map { it.toInt()}
 
-    fun cardScore(input: String): Int {
-        val numbers = input.substringAfter(":")
-        val winningNumbers = numbers.substringBefore("|").split(" ").map { it.trim() }.filter { it.isNotBlank() }
-        val myNumbers = numbers.substringAfter("|").split(" ").map { it.trim() }
-
-        var points = 0
-        myNumbers.forEach {
-            if (winningNumbers.contains(it)) {
-                if (points == 0) {
-                    points = 1
-                } else {
-                    points *= 2
-                }
-            }
+            (leftRange[0] >= rightRange[0] && leftRange[1] <= rightRange[1]) ||
+                    (leftRange[0] <= rightRange[0] && leftRange[1] >= rightRange[1])
         }
-        return points
+        return fullyContains.size
     }
 
     fun part2(input: List<String>): Int {
-        var scores = input.map { cardScore2(it) }.toMutableList()
+        val partialContains = input.filter {
+            val leftRange = it.substringBefore(",").split("-").map { it.toInt()}
+            val rightRange = it.substringAfter(",").split("-").map { it.toInt()}
 
-        scores.forEachIndexed { i, card ->
-            (1..card.points).forEach {
-                scores[i + it].cards += card.cards
-            }
+
+            (leftRange[0]>= rightRange[0] && leftRange[0] <=rightRange[1]) ||
+            (leftRange[1]>= rightRange[0] && leftRange[1] <=rightRange[1])||
+            (rightRange[0]>= leftRange[0] && rightRange[0] <=leftRange[1]) ||
+            (rightRange[1]>= leftRange[0] && rightRange[1] <=leftRange[1])
         }
-
-        scores.forEachIndexed { index, card -> println("$index: ${card.cards}") }
-
-        return scores.sumOf { it.cards }
+        return partialContains.size
     }
-
-
-    fun cardScore2(input: String): Card {
-        val numbers = input.substringAfter(":")
-        val winningNumbers = numbers.substringBefore("|").split(" ").map { it.trim() }.filter { it.isNotBlank() }
-        val myNumbers = numbers.substringAfter("|").split(" ").map { it.trim() }
-
-        var points = 0
-        myNumbers.forEach {
-            if (winningNumbers.contains(it)) {
-                points++
-            }
-        }
-        return Card(points, 1)
-    }
-
-    data class Card(
-        val points: Int,
-        var cards: Int
-    )
 
 }
