@@ -12,38 +12,31 @@ fun main() {
 class Day06 {
 
     fun part1(input: List<String>): Int {
-        val time = input[0].substringAfter(":").readNumbers()
-        val distance = input[1].substringAfter(":").readNumbers()
-
-        val solutions = time.indices.map {
-            getNumberOfSolutions(time[it].toLong(), distance[it].toLong())
-        }
-        var result = 1
-        solutions.forEach {
-            result *= it
-        }
-        return result
-    }
-
-    fun String.readNumbers(): List<Int> {
-        return split(" ").filter { it.isNotEmpty() }.map { it.toInt() }
-    }
-
-    fun getNumberOfSolutions(time: Long, distance: Long): Int {
-        var solutions = 0
-        (1..time).forEach {
-            val timeToFinish = it.toDouble() + (distance.toDouble() / it.toDouble())
-            if (timeToFinish < time) {
-                solutions++
+        var buffer = mutableListOf<Char>()
+        input[0].toCharArray().forEachIndexed { i, char ->
+            if (!buffer.contains(char) && buffer.size == 3 && buffer.size == buffer.distinct().size) {
+                return i + 1
+            }
+            buffer.add(char)
+            if (buffer.size == 4) {
+                buffer.removeAt(0)
             }
         }
-        return solutions
+        return 0
     }
 
     fun part2(input: List<String>): Int {
-        val time = input[0].substringAfter(":").replace(" ", "").toLong()
-        val distance = input[1].substringAfter(":").replace(" ", "").toLong()
-        return getNumberOfSolutions(time, distance)
+        var buffer = mutableListOf<Char>()
+        input[0].toCharArray().forEachIndexed { i, char ->
+            if (!buffer.contains(char) && buffer.size == 13 && buffer.size == buffer.distinct().size) {
+                return i + 1
+            }
+            buffer.add(char)
+            if (buffer.size == 14) {
+                buffer.removeAt(0)
+            }
+        }
+        return 0
     }
 
 }
