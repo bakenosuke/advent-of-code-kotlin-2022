@@ -12,7 +12,7 @@ fun main() {
 class Day06 {
 
     fun part1(input: List<String>): Int {
-        var buffer = mutableListOf<Char>()
+        val buffer = mutableListOf<Char>()
         input[0].toCharArray().forEachIndexed { i, char ->
             if (!buffer.contains(char) && buffer.size == 3 && buffer.size == buffer.distinct().size) {
                 return i + 1
@@ -26,7 +26,7 @@ class Day06 {
     }
 
     fun part2(input: List<String>): Int {
-        var buffer = mutableListOf<Char>()
+        val buffer = mutableListOf<Char>()
         input[0].toCharArray().forEachIndexed { i, char ->
             if (!buffer.contains(char) && buffer.size == 13 && buffer.size == buffer.distinct().size) {
                 return i + 1
