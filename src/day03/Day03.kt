@@ -11,103 +11,43 @@ fun main() {
 
 class Day03 {
 
-    data class Location(val row: Int, val col: Int)
-
-    data class NumberLocation(
-        val number: Int,
-        val locations: List<Location>
-    )
-
     fun part1(input: List<String>): Int {
-        val numberLocations = getNumberLocations(input)
-        val symbolLocations = getSymbolLocations(input)
+        val results = input.map {
+            val left = it.substring(0, it.length / 2).toCharArray().distinct()
+            val right = it.substring(it.length / 2, it.length).toCharArray().distinct()
 
-        val numbersNearSymbols = numberLocations.filter { (number, numberLocation) ->
-            numberLocation.any {
-                it.getNeighbouringLocations().any { symbolLocations.contains(it) }
+            val common = left.filter {
+                right.contains(it)
             }
+
+            common.sumOf { it.score() }
         }
 
-        return numbersNearSymbols.sumOf { it.number }
+        return results.sum()
     }
 
-    fun Location.getNeighbouringLocations(): List<Location> {
-        return listOf(
-            Location(row - 1, col - 1),
-            Location(row - 1, col),
-            Location(row - 1, col + 1),
-            Location(row, col - 1),
-            Location(row, col + 1),
-            Location(row + 1, col - 1),
-            Location(row + 1, col),
-            Location(row + 1, col + 1),
-        )
-    }
-
-    fun getNumberLocations(input: List<String>): List<NumberLocation> {
-        val numberLocations = mutableListOf<NumberLocation>()
-        input.forEachIndexed { row, line ->
-            var num = 0
-            var locations = mutableListOf<Location>()
-            line.forEachIndexed { col, char ->
-                if (char.isDigit()) {
-                    num = num * 10 + char.digitToInt()
-                    locations.add(Location(row, col))
-                } else {
-                    if (num > 0) {
-                        numberLocations.add(NumberLocation(num, locations))
-                        num = 0
-                        locations = mutableListOf()
-                    }
-                }
-            }
-            if (num > 0) {
-                numberLocations.add(NumberLocation(num, locations))
-                num = 0
-                locations = mutableListOf()
-            }
+    fun Char.score(): Int {
+        val code = this.code - 'a'.code + 1
+        return if (code > 0) {
+            code
+        } else {
+            code + 58
         }
-        return numberLocations
-    }
-
-    fun getSymbolLocations(input: List<String>): List<Location> {
-        val locations = mutableListOf<Location>()
-        input.forEachIndexed { row, line ->
-            line.forEachIndexed { col, char ->
-                if (!char.isDigit() && char != '.') {
-                    locations.add(Location(row, col))
-                }
-            }
-        }
-        return locations
-    }
-
-    fun getAstrixLocations(input: List<String>): List<Location> {
-        val locations = mutableListOf<Location>()
-        input.forEachIndexed { row, line ->
-            line.forEachIndexed { col, char ->
-                if (char == '*') {
-                    locations.add(Location(row, col))
-                }
-            }
-        }
-        return locations
     }
 
     fun part2(input: List<String>): Int {
-        val numberLocations = getNumberLocations(input)
-        val astrixLocations = getAstrixLocations(input)
+        val results = (0..<(input.size / 3)).map {
+            val first = input[it * 3].toCharArray().distinct()
+            val second = input[it * 3 + 1].toCharArray().distinct()
+            val third = input[it * 3 + 2].toCharArray().distinct()
 
-        val astrixAndNeighbours = astrixLocations.map {
-            val nearNumbers = numberLocations.filter { numberLocation ->
-                numberLocation.locations.any { location ->
-                    it.getNeighbouringLocations().contains(location)
-                }
+            val common = first.filter {
+                second.contains(it) && third.contains(it)
             }
-            nearNumbers
+            common.sumOf { it.score() }
         }
 
-        return astrixAndNeighbours.filter { it.size == 2 }.sumOf { it.first().number * it.last().number}
+        return results.sum()
     }
 
 }
