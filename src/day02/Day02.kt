@@ -12,59 +12,76 @@ fun main() {
 class Day02 {
 
     fun part1(input: List<String>): Int {
-        val colourAvailable = ColourCount(r = 12, g = 13, b = 14)
-        val maxColourCounts = input.map { getMaxColours(it) }
+        val scores = input.map {
+            val opponent = it.substringBefore(" ").toMove()
+            val mine = it.substringAfter(" ").toMove()
 
-        var sumOfPossibleIds = 0
-        maxColourCounts.forEach { maxColourCount ->
-            if (colourAvailable.r >= maxColourCount.second.r && colourAvailable.g >= maxColourCount.second.g && colourAvailable.b >= maxColourCount.second.b) {
-                sumOfPossibleIds += maxColourCount.first
+            val winScore = when{
+                opponent == mine -> 3
+                opponent == Move.ROCK && mine == Move.PAPER -> 6
+                opponent == Move.PAPER && mine == Move.SCISSORS -> 6
+                opponent == Move.SCISSORS && mine == Move.ROCK -> 6
+                mine == Move.ROCK && opponent == Move.PAPER -> 0
+                mine == Move.PAPER && opponent == Move.SCISSORS -> 0
+                mine == Move.SCISSORS && opponent == Move.ROCK -> 0
+                else -> 0
             }
+             mine.score +winScore
         }
-
-        return sumOfPossibleIds
+        return  scores.sum()
     }
 
-    data class ColourCount(var r: Int = 0, var g: Int = 0, var b: Int = 0)
-
-    fun getMaxColours(input: String): Pair<Int, ColourCount> {
-        val game = input.substringBefore(":").replace("Game ", "").toInt()
-        val sets = input.substringAfter(":").split(";")
-        val maxColourCount = ColourCount()
-        sets.forEach {
-            val tokens = it.split(",")
-            tokens.map { it.trim() }.forEach {
-                val amount = it.substringBefore(" ").toInt()
-                val colour = it.substringAfter(" ")
-                when (colour) {
-                    "red" -> {
-                        maxColourCount.r = maxOf(maxColourCount.r, amount)
-                    }
-
-                    "blue" -> {
-                        maxColourCount.b = maxOf(maxColourCount.b, amount)
-                    }
-
-                    "green" -> {
-                        maxColourCount.g = maxOf(maxColourCount.g, amount)
-                    }
-
-                    else -> {}
-                }
-            }
+    fun String.toMove(): Move {
+        return when (this) {
+            "A", "X" -> return Move.ROCK
+            "B", "Y" -> return Move.PAPER
+            "C", "Z" -> return Move.SCISSORS
+            else -> throw IllegalArgumentException("Invalid move")
         }
-        return Pair(game, maxColourCount)
+    }
+
+    fun String.toOutcome(): Outcome {
+        return when (this) {
+             "X" -> return Outcome.LOSE
+            "Y" -> return Outcome.DRAW
+            "Z" -> return Outcome.WIN
+            else -> throw IllegalArgumentException("Invalid outcome")
+        }
+    }
+
+    enum class Move(val score: Int) {
+        ROCK(1), PAPER(2), SCISSORS(3)
+    }
+
+    enum class Outcome() {
+        WIN, LOSE, DRAW
     }
 
     fun part2(input: List<String>): Int {
-        val maxColourCounts = input.map { getMaxColours(it) }
+        val scores = input.map {
+            val opponent = it.substringBefore(" ").toMove()
+            val outcome = it.substringAfter(" ").toOutcome()
+            val mine = when(outcome){
+                Outcome.WIN -> when(opponent) {
+                    Move.ROCK -> Move.PAPER
+                    Move.PAPER -> Move.SCISSORS
+                    Move.SCISSORS -> Move.ROCK
+                }
+                Outcome.LOSE -> when(opponent) {
+                    Move.ROCK -> Move.SCISSORS
+                    Move.PAPER -> Move.ROCK
+                    Move.SCISSORS -> Move.PAPER
+                }
+                Outcome.DRAW -> opponent
+            }
 
-        var sumOfPowers = 0
-        maxColourCounts.forEach { maxColourCount ->
-            sumOfPowers += (maxColourCount.second.r *maxColourCount.second.g *maxColourCount.second.b)
+            mine.score + when(outcome){
+                Outcome.WIN -> 6
+                Outcome.LOSE -> 0
+                Outcome.DRAW -> 3
+            }
         }
-
-        return sumOfPowers
+        return  scores.sum()
     }
 
 }
